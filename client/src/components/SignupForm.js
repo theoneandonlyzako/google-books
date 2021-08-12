@@ -1,27 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
 import { useMutation } from '@apollo/react-hooks';
 import { ADD_USER } from '../utils/mutations';
-
 import Auth from '../utils/auth';
 
 const SignupForm = () => {
-  // set states
+  // set initial form state
   const [userFormData, setUserFormData] = useState({ username: '', email: '', password: '' });
+  // set state for form validation
   const [validated] = useState(false);
+  // set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
-  // use GraphQL mutation to add user
-  const [addUser] = useMutation(ADD_USER);
+  const [addUser, { error }] = useMutation(ADD_USER);
 
-  // form change handler
+  useEffect(() => {
+    if (error) {
+      setShowAlert(true);
+    } else {
+      setShowAlert(false);
+    }
+  }, [error]);
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
   };
 
-  // form submit handler
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -33,19 +39,15 @@ const SignupForm = () => {
     }
 
     try {
-      // add the user to the db
       const { data } = await addUser({
-        variables: { ...userFormData }
+        variables: { ...userFormData },
       });
-
-      // login if successful
+      console.log(data);
       Auth.login(data.addUser.token);
     } catch (err) {
       console.error(err);
-      setShowAlert(true);
     }
 
-    // reset the form state
     setUserFormData({
       username: '',
       email: '',
