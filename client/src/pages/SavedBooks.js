@@ -19,11 +19,11 @@ const SavedBooks = () => {
         variables: {bookId}
       });
 
-      // upon success, update the user data
-      setUserData(updatedUser);
-
+      console.log('Hello Moto');
+      
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
+      // localStorage.removeItemById(saved_books, [bookid])
     } catch (err) {
       console.error(err);
     }
